@@ -1,11 +1,11 @@
-FROM debian:bullseye
+FROM debian:bookworm
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
 
 # Support multiarch builds to perform cross compilation
 # https://wiki.debian.org/Multiarch/HOWTO
-RUN dpkg --add-architecture armhf
+RUN dpkg --add-architecture arm64
 
 # Expected system requirements
 RUN apt-get update && apt-get install -y \
@@ -23,21 +23,21 @@ RUN apt-get install -y \
 
 # Base libcamera cross compiler and target architecture packages
 RUN apt-get install -y \
-	gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
-	libgnutls28-dev:armhf \
-	libboost-dev:armhf \
-	libudev-dev:armhf \
-	libgstreamer1.0-dev:armhf libgstreamer-plugins-base1.0-dev:armhf \
-	libevent-dev:armhf \
-	qtbase5-dev:armhf libqt5core5a:armhf libqt5gui5:armhf libqt5widgets5:armhf \
-	qttools5-dev-tools:armhf libtiff-dev:armhf \
-	libexif-dev:armhf libjpeg-dev:armhf libyaml-dev:armhf
+	gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+	libgnutls28-dev:arm64 \
+	libboost-dev:arm64 \
+	libudev-dev:arm64 \
+	libgstreamer1.0-dev:arm64 libgstreamer-plugins-base1.0-dev:arm64 \
+	libevent-dev:arm64 \
+	qtbase5-dev:arm64 libqt5core5a:arm64 libqt5gui5:arm64 libqt5widgets5:arm64 \
+	qttools5-dev-tools:arm64 libtiff-dev:arm64 \
+	libexif-dev:arm64 libjpeg-dev:arm64 libyaml-dev:arm64
 
 # Generate the meson cross file using the debian package helper
-RUN /usr/share/meson/debcrossgen --arch armhf -o /usr/share/meson/armhf-cross
+RUN /usr/share/meson/debcrossgen --arch arm64 -o /usr/share/meson/arm64-cross
 
 # Fix exec error when checking versions (because of aarch64 bin)
-RUN mv /usr/lib/arm-linux-gnueabihf/qt5/bin/lrelease /usr/lib/arm-linux-gnueabihf/qt5/bin/lrelease.old
+RUN mv /usr/lib/aarch64-linux-gnu/qt5/bin/lrelease /usr/lib/aarch64-linux-gnu/qt5/bin/lrelease.old
 
 # Create a custom user to operate in the container
 RUN adduser --disabled-password --gecos '' libcamera
