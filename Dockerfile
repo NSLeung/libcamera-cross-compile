@@ -21,6 +21,11 @@ RUN apt-get install -y \
 	python3-sphinx doxygen ghostscript graphviz texlive-latex-extra \
 	liblttng-ust-dev python3-jinja2 lttng-tools
 
+# rpicam-apps depedencies
+RUN apt-get install -y \
+	libboost-all-dev \
+	libpng-dev
+
 # Base libcamera cross compiler and target architecture packages
 RUN apt-get install -y \
 	gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \

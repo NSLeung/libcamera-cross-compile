@@ -1,0 +1,8 @@
+Package: rpicam-apps
+Version: 0.0.0
+Architecture: arm64
+Section: misc
+Priority: optional
+Maintainer: Nayman Leung <naymansleung@gmail.com>
+Depends: 
+Description: A package providing raspi-cam, built downstream from Rpi

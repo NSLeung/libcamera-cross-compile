@@ -1,41 +1,69 @@
-# Cross compilation environment for libcamera for the RPi Bullseye OS
+# Cross compilation environment for libcamera for the RPi Bookworm OS
 
-This will let you build a cross compilation docker image, and use it to compile libcamera for the RPi, and the package it up in a deb file to send to your RPi. A meson cross file will be automatically generated inside the debian bookworm environment. 
+A meson cross file will be automatically generated inside the debian bookworm Docker environment. Produces debian packages to install onto RPi.
 
 ## Setting up your working directory
-#### Make the directory
+1. Make the directory <br>
 `mkdir libcamera-raspi; cd libcamera-raspi`
-#### Download this repo
-`git clone https://github.com/CactiChameleon9/Libcamera-RPiOS-Build-Enviroment ./`
-#### Clone the libcamera sources
-`git clone https://git.libcamera.org/libcamera/libcamera.git`
+
+2. Download repositories <br>
+`git clone https://github.com/NSLeung/libcamera-cross-compile.git/`
+
+3. Clone the sources (downstream libcamera and rpicam-apps) <br>
+`git clone https://github.com/raspberrypi/libcamera.git libcamera-raspi-downstream` <br>
+`git clone https://github.com/raspberrypi/rpicam-apps.git`
 
 ## Building and installing
 
-### Build your cross compile docker image: (TODO: make a prebuilt image to pull)
-`sudo docker build -t libcamera/debian/bullseye-cross-arm64 - < Dockerfile`
+1. Build cross compile docker image <br>
+`sudo docker build -t debian-bookworm-cross-compiler .`
 
-### Run a shell in the new docker image in your working directory (containing libcamera and your mountpoint)
-`sudo docker run -v "$PWD":"$PWD" -w "$PWD" --rm -it libcamera/debian/bullseye-cross-arm64`
+2. Run a shell in the new docker image in your working directory (containing libcamera and your mountpoint) <br>
+`sudo docker run -v "$PWD":"$PWD" -w "$PWD" --rm -it debian-bookworm-cross-compiler`
 
-### Enter your libcamera sources directory
-`cd libcamera`
+3. Enter sources directory <br>
+`cd libcamera-raspi-downstream`
 
-### Configure meson to perform the cross build
-`meson build/rpi/bullseye --cross-file /usr/share/meson/arm64-cross`
+4. Configure meson to perform the cross build <br>
+`meson setup build/rpi/bullseye --cross-file /usr/share/meson/arm64-cross`
 
-### (Cross-compile) Build libcamera at host compile speeds
+5. (Cross-compile) Build libcamera at host compile speeds <br>
 `ninja -C ./build/rpi/bullseye/`
 
-### Building the deb package
-`sudo DESTDIR=$(readlink -f ../libcamera-raspi-debian) ninja -C ./build/rpi/bullseye install`
+6. Install to container <br>
+`sudo ninja -C ./build/rpi/bullseye install`
 
-`cd ../`
+7. Build deb package for libcamera <br>
+```bash
+sudo DESTDIR=$(readlink -f ../libcamera-raspi-debian) ninja -C ./build/rpi/bullseye install
 
-`sudo dpkg -b libcamera-raspi-debian`
+cd ../
 
-## Copying deb file from container to host
+sudo dpkg -b libcamera-raspi-debian
+```
+
+8. Build deb package for rpicam-apps
+```bash
+sudo DESTDIR=$(readlink -f ../rpicam-debian) ninja -C ./build/rpi/bullseye install
+
+cd ../
+
+sudo dpkg -b rpicam-debian
+```
+
+9. SSH to RPi and  Install built deb files
+```bash
+sudo dpkg -i ./libcamera-raspi-debian.deb
+sudo dpkg -i ./rpicam-debian.deb
+```
+
+10. Update linker path <br>
+Installing the debian packages dumps the files into `/usr/local/lib` since it is a user-maintained package.
+
+`export LD_LIBRARY_PATH=/usr/local/lib`
+
+Add to $HOME/.bashrc to persist path.
+
+## Additional Useful Commands
+### Copying deb file from container to host
 `docker cp [docker_container_id]:/[path_to_deb] [dest]`
-
-## Installing your built deb file
-`sudo apt install ./libcamera-raspi-debian.deb`
