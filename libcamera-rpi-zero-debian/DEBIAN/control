@@ -1,0 +1,8 @@
+Package: libcamera
+Version: 0.0.0
+Architecture: armhf
+Section: misc
+Priority: optional
+Maintainer: Nayman Leung <naymansleung@gmail.com>
+Depends: libevent-pthreads-2.1-7
+Description: A downstream package providing libcamera, a part of the camera stack for complex cameras for armhf arch
