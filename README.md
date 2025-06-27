@@ -14,6 +14,7 @@ A meson cross file will be automatically generated inside the debian bookworm Do
 `git clone https://github.com/raspberrypi/rpicam-apps.git`
 
 ## Building and installing
+For 32-bit cross-compilation, execute the following steps with the 32bit Dockerfile.
 
 1. Build cross compile docker image <br>
 `sudo docker build -t debian-bookworm-cross-compiler .`
@@ -25,17 +26,17 @@ A meson cross file will be automatically generated inside the debian bookworm Do
 `cd libcamera-raspi-downstream`
 
 4. Configure meson to perform the cross build <br>
-`meson setup build/rpi/bullseye --cross-file /usr/share/meson/arm64-cross`
+`meson setup build/rpi/bookworm --cross-file /usr/share/meson/arm64-cross`
 
 5. (Cross-compile) Build libcamera at host compile speeds <br>
-`ninja -C ./build/rpi/bullseye/`
+`ninja -C ./build/rpi/bookworm/`
 
 6. Install to container <br>
-`sudo ninja -C ./build/rpi/bullseye install`
+`sudo ninja -C ./build/rpi/bookworm install`
 
 7. Build deb package for libcamera <br>
 ```bash
-sudo DESTDIR=$(readlink -f ../libcamera-raspi-debian) ninja -C ./build/rpi/bullseye install
+sudo DESTDIR=$(readlink -f ../libcamera-raspi-debian) ninja -C ./build/rpi/bookworm install
 
 cd ../
 
@@ -44,7 +45,7 @@ sudo dpkg -b libcamera-raspi-debian
 
 8. Build deb package for rpicam-apps
 ```bash
-sudo DESTDIR=$(readlink -f ../rpicam-debian) ninja -C ./build/rpi/bullseye install
+sudo DESTDIR=$(readlink -f ../rpicam-debian) ninja -C ./build/rpi/bookworm install
 
 cd ../
 

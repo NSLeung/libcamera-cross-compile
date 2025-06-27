@@ -1,0 +1,50 @@
+FROM arm32v7/debian:bookworm
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV LANG='C.UTF-8' LC_ALL='C.UTF-8'
+
+# Support multiarch builds to perform cross compilation
+# https://wiki.debian.org/Multiarch/HOWTO
+RUN dpkg --add-architecture armhf
+
+# Expected system requirements
+RUN apt-get update && apt-get install -y \
+	sudo \
+	git
+
+# Base libcamera image, with non-toolchain dependencies for building.
+# Base libcamera always-host packages (compilation dependencies)
+RUN apt-get install -y \
+	meson ninja-build pkg-config dpkg-dev \
+	python3-yaml python3-ply python3-jinja2 \
+	openssl \
+	python3-sphinx doxygen ghostscript graphviz texlive-latex-extra \
+	liblttng-ust-dev python3-jinja2 lttng-tools
+
+# rpicam-apps depedencies
+RUN apt-get install -y \
+	libboost-all-dev \
+	libpng-dev
+
+# Base libcamera cross compiler and target architecture packages
+RUN apt-get install -y \
+	gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
+	libgnutls28-dev:armhf \
+	libboost-dev:armhf \
+	libudev-dev:armhf \
+	libgstreamer1.0-dev:armhf libgstreamer-plugins-base1.0-dev:armhf \
+	libevent-dev:armhf \
+	qtbase5-dev:armhf libqt5core5a:armhf libqt5gui5:armhf libqt5widgets5:armhf \
+	qttools5-dev-tools:armhf libtiff-dev:armhf \
+	libexif-dev:armhf libjpeg-dev:armhf libyaml-dev:armhf
+
+# Generate the meson cross file using the debian package helper
+RUN /usr/share/meson/debcrossgen --arch armhf -o /usr/share/meson/armhf-cross
+
+# Create a custom user to operate in the container
+RUN adduser --disabled-password --gecos '' libcamera
+RUN adduser libcamera sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+WORKDIR /home/libcamera
+USER libcamera

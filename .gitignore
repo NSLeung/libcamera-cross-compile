@@ -1,6 +1,11 @@
 # debian package source
-libcamera-raspi-debian/usr
-rpicam-debian/usr
+usr
+
+# libcamera-raspi-debian/usr
+# rpicam-debian/usr
+# libcamera-rpi-zero-debian
+# rpicam-rpi-zero-debian
+
 # debian packages
 *.deb
 
